@@ -35,7 +35,9 @@
         (event-project nil)
         (temp-point nil))
     (setq json-str string)
-    (setq json-obj (json-read-from-string json-str))
+    (condition-case nil
+        (setq json-obj (json-read-from-string json-str))
+      (error (message "Wrong json string: %s" json-str)))
     ;; (prin1 (assoc 'author json-obj))
     (setq event-type (cdr (assoc 'type json-obj)))
     ;; event types: patchset-created
@@ -62,7 +64,7 @@
         (insert " > ")
         (facemenu-set-face 'gerta-project-subject-delimiter-face temp-point (point))
         (fill-region temp-point (point))
-        (insert (format " %s"
+        (insert (format " %s."
                         (cdr
                          (assoc 'subject
                                 (assoc 'change json-obj)))))
