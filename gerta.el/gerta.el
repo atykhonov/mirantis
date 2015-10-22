@@ -1,8 +1,39 @@
+;; (defface gerta-comment-face
+;;   '((t (:weight bold)))
+;;   "Face used to display the probable translation."
+;;   :group 'gerta)
+
+(defface gerta-project-face
+  '((t (:height 0.8)))
+  "Face used to display button \"Listen\"."
+  :group 'gerta)
+
+(defface gerta-project-subject-delimiter-face
+  '((t (:height 0.8)))
+  "Face used to display button \"Listen\"."
+  :group 'gerta)
+
+(defface gerta-subject-face
+  '((t (:height 0.8)))
+  "Face used to display button \"Listen\"."
+  :group 'gerta)
+
+(defface gerta-comment-face
+  '((t (:height 0.6)))
+  "Face used to display button \"Listen\"."
+  :group 'gerta)
+
+(defface gerta-author-face
+  '((t (:height 0.7)))
+  "Face used to display the suggestion label."
+  :group 'gerta)
+
 (defun gerta--process-filter (proc string)
   (let ((json-obj nil)
         (json-str nil)
         (event-type nil)
-        (event-project nil))
+        (event-project nil)
+        (temp-point nil))
     (setq json-str string)
     (setq json-obj (json-read-from-string json-str))
     ;; (prin1 (assoc 'author json-obj))
@@ -22,12 +53,32 @@
       (setq patch-set-author (cdr (assoc 'name (assoc 'author json-obj))))
       (setq event-comment (cdr (assoc 'comment json-obj)))
       (with-current-buffer (get-buffer-create "*gerta*")
-        (insert (format "[%s] > %s\n"
-                        (substring event-project 10)
+        (end-of-buffer)
+        (setq temp-point (point))
+        (insert (format "[%s]" (substring event-project 10)))
+        (facemenu-set-face 'gerta-project-face temp-point (point))
+        (fill-region temp-point (point))
+        (setq temp-point (point))
+        (insert " > ")
+        (facemenu-set-face 'gerta-project-subject-delimiter-face temp-point (point))
+        (fill-region temp-point (point))
+        (insert (format " %s"
                         (cdr
                          (assoc 'subject
                                 (assoc 'change json-obj)))))
-        (insert (format "» %s: %s\n\n" patch-set-author event-comment))
+        (facemenu-set-face 'gerta-subject-face temp-point (point))
+        (fill-region temp-point (point))
+        (insert "\n")
+        (setq temp-point (point))
+        (insert (format "» %s: \n" patch-set-author))
+        (facemenu-set-face 'gerta-author-face temp-point (point))
+        (fill-region temp-point (point))
+        (setq temp-point (point))
+        (insert (format "%s\n" event-comment))
+        (facemenu-set-face 'gerta-comment-face temp-point (point))
+        (fill-region temp-point (point))
+        ;; (insert "---\n\n")
+        (insert "\n")
         ))))
 
 (defun gerta-start ()
