@@ -4,7 +4,7 @@
 ;;   :group 'gerta)
 
 (defface gerta-project-face
-  '((t (:height 0.8)))
+  '((t (:height 0.8 :weight bold :foreground "#b0c4de")))
   "Face used to display button \"Listen\"."
   :group 'gerta)
 
@@ -68,13 +68,12 @@
                                 (assoc 'change json-obj)))))
         (facemenu-set-face 'gerta-subject-face temp-point (point))
         (fill-region temp-point (point))
-        (insert "\n")
         (setq temp-point (point))
-        (insert (format "» %s: \n" patch-set-author))
+        (insert (format "\n\n» %s: \n" patch-set-author))
         (facemenu-set-face 'gerta-author-face temp-point (point))
         (fill-region temp-point (point))
         (setq temp-point (point))
-        (insert (format "%s\n" event-comment))
+        (insert (format "\n%s\n" event-comment))
         (facemenu-set-face 'gerta-comment-face temp-point (point))
         (fill-region temp-point (point))
         ;; (insert "---\n\n")
