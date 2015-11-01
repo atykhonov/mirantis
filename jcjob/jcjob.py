@@ -5,9 +5,10 @@ import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
 
 import os
+import sys
 import time
 
-from utils import can_read, parse_config
+from utils import can_read, is_build_running, parse_config
 
 
 system_settings = '/etc/jcjob/jcjobrc'
@@ -40,11 +41,11 @@ if os.environ.get('JCJOB_JOB'):
 parser = argparse.ArgumentParser(description='jcjob')
 parser.add_argument('-j', '--job', help='Jenkins Job to be built')
 parser.add_argument(
-    '-r', '--url', nargs='?', help='Jenkins URL')
+    '-r', '--url', dest='jenkins_url', nargs='?', help='Jenkins URL')
 parser.add_argument('-u', '--username', nargs='?', help='Jenkins username')
 parser.add_argument('-w', '--password', nargs='?', help='Jenkins password')
 parser.add_argument(
-    '-o', '--output', default='artifacts', nargs='?',
+    '-o', '--output', default='.artifacts', nargs='?',
     help='Output dir for the artifacts')
 parser.add_argument(
     '-p', '--parameter', nargs='+', help='Jenkins Job Parameter')
@@ -54,17 +55,9 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-if args.url:
-    settings['jenkins_url'] = args.url
-
-if args.username:
-    settings['username'] = args.username
-
-if args.password:
-    settings['password'] = args.password
-
-if args.job:
-    settings['job'] = args.job
+for key, value in args.__dict__.items():
+    if value:
+        settings[key] = value
 
 print 'Settings: '
 print settings
@@ -107,7 +100,7 @@ for build_id in last_builds_ids:
 if build:
     output = ''
     last_size = 0
-    while build.is_running():
+    while is_build_running(build):
         time.sleep(1)
         console = build.get_console()
         if last_size == len(console):
@@ -116,6 +109,11 @@ if build:
         print diff
         last_size = len(console)
     if build.is_good():
+        artifacts_dir = os.path.join(output_dir, build_id)
+        if not os.path.exists(artifacts_dir):
+            os.makedirs(artifacts_dir)
         for name, artifact in build.get_artifact_dict().items():
-            with open(os.path.join(output_dir, name), 'w') as f:
+            with open(os.path.join(artifacts_dir, name), 'w') as f:
                 f.write(artifact.get_data())
+    else:
+        sys.exit(1)

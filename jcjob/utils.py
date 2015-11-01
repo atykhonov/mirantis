@@ -1,5 +1,8 @@
 import os
 
+import requests
+from retrying import retry
+
 
 COMMENT_CHAR = '#'
 OPTION_CHAR = '='
@@ -30,3 +33,23 @@ def can_read(filename):
     if os.path.isfile(filename) and os.access(filename, os.R_OK):
         return True
     return False
+
+
+def retry_if_http_error(exception):
+    return isinstance(exception, requests.exceptions.HTTPError)
+
+
+def retry_if_connection_error(exception):
+    return isinstance(exception, requests.exceptions.ConnectionError)
+
+
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000,
+       retry_on_exception=retry_if_http_error)
+def is_build_running(build):
+    return build.is_running()
+
+
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=60000,
+       retry_on_exception=retry_if_connection_error)
+def build_get_console(build):
+    return build.get_console()
