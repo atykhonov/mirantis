@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
+import argcomplete
 import argparse
-import jenkinsapi
 from jenkinsapi.jenkins import Jenkins
 
 import os
@@ -38,6 +38,24 @@ if os.environ.get('JCJOB_JENKINS_URL'):
 if os.environ.get('JCJOB_JOB'):
     settings['job'] = os.environ.get('JCJOB_JOB')
 
+
+def job_params(prefix, parsed_args, **kwargs):
+    cached_params_dir = os.path.expanduser('~/.config/fjj/cache')
+    cached_params_file = '{0}/{1}'.format(cached_params_dir, settings['job'])
+    if os.path.isfile(cached_params_file):
+        with open(cached_params_file) as f:
+            return f.readlines()
+    jenkins = Jenkins(
+        settings['jenkins_url'], settings['username'], settings['password'])
+    job = jenkins[settings['job']]
+    params = [p['name'] for p in job.get_params()]
+    if not os.path.exists(cached_params_dir):
+        os.makedirs(cached_params_dir)
+    with open(cached_params_file, 'w') as f:
+        for p in params:
+            f.write('{0}\n'.format(p))
+    return params
+
 parser = argparse.ArgumentParser(description='jcjob')
 parser.add_argument('-j', '--job', help='Jenkins Job to be built')
 parser.add_argument(
@@ -48,10 +66,12 @@ parser.add_argument(
     '-o', '--output', default='.artifacts', nargs='?',
     help='Output dir for the artifacts')
 parser.add_argument(
-    '-p', '--parameter', nargs='+', help='Jenkins Job Parameter')
+    '-p', '--parameter', nargs='+', help='Jenkins Job Parameter').completer = job_params
 parser.add_argument(
     '-P', '--file-parameter', nargs='+', default=[],
     help='Jenkins Job Parameter given from file')
+
+argcomplete.autocomplete(parser)
 
 args = parser.parse_args()
 
