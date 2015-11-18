@@ -67,7 +67,8 @@ parser.add_argument(
     '-o', '--output', default='.artifacts', nargs='?',
     help='Output dir for the artifacts')
 parser.add_argument(
-    '-p', '--parameter', nargs='+', help='Jenkins Job Parameter').completer = job_params
+    '-p', '--parameter', nargs='+', default=[],
+    help='Jenkins Job Parameter').completer = job_params
 parser.add_argument(
     '-P', '--file-parameter', nargs='+', default=[],
     help='Jenkins Job Parameter given from file')
