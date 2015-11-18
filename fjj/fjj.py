@@ -12,7 +12,8 @@ from utils import can_read, is_build_running, parse_config
 
 
 system_settings = '/etc/fjj/fjjrc'
-home_settings = os.path.join(os.path.expanduser("~"), '.fjjrc')
+home_settings_dir = os.path.expanduser(os.path.join('~', '.config', 'fjj'))
+home_settings = os.path.join(home_settings_dir, 'fjjrc')
 pwd_settings = os.path.join(os.getcwd(), '.fjjrc')
 
 settings = {}
@@ -40,8 +41,8 @@ if os.environ.get('FJJ_JOB'):
 
 
 def job_params(prefix, parsed_args, **kwargs):
-    cached_params_dir = os.path.expanduser('~/.config/fjj/cache')
-    cached_params_file = '{0}/{1}'.format(cached_params_dir, settings['job'])
+    cached_params_dir = os.path.join(home_settings_dir, 'cache')
+    cached_params_file = os.path.join(cached_params_dir, settings['job'])
     if os.path.isfile(cached_params_file):
         with open(cached_params_file) as f:
             return f.readlines()
