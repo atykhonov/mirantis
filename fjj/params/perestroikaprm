@@ -1,0 +1,1 @@
+make_args=MIRROR_MOS_UBUNTU=perestroika-repo-tst.infra.mirantis.net MIRROR_MOS_UBUNTU_ROOT=/mos-repos/ubuntu/snapshots/8.0-2015-09-02-000000
