@@ -11,9 +11,9 @@ import time
 from utils import can_read, is_build_running, parse_config
 
 
-system_settings = '/etc/jcjob/jcjobrc'
-home_settings = os.path.join(os.path.expanduser("~"), '.jcjobrc')
-pwd_settings = os.path.join(os.getcwd(), '.jcjobrc')
+system_settings = '/etc/fjj/fjjrc'
+home_settings = os.path.join(os.path.expanduser("~"), '.fjjrc')
+pwd_settings = os.path.join(os.getcwd(), '.fjjrc')
 
 settings = {}
 
@@ -26,17 +26,17 @@ if can_read(home_settings):
 if can_read(pwd_settings):
     settings.update(parse_config(pwd_settings))
 
-if os.environ.get('JCJOB_USERNAME'):
-    settings['username'] = os.environ.get('JCJOB_USERNAME')
+if os.environ.get('FJJ_USERNAME'):
+    settings['username'] = os.environ.get('FJJ_USERNAME')
 
-if os.environ.get('JCJOB_PASSWORD'):
-    settings['password'] = os.environ.get('JCJOB_PASSWORD')
+if os.environ.get('FJJ_PASSWORD'):
+    settings['password'] = os.environ.get('FJJ_PASSWORD')
 
-if os.environ.get('JCJOB_JENKINS_URL'):
-    settings['jenkins_url'] = os.environ.get('JCJOB_JENKINS_URL')
+if os.environ.get('FJJ_JENKINS_URL'):
+    settings['jenkins_url'] = os.environ.get('FJJ_JENKINS_URL')
 
-if os.environ.get('JCJOB_JOB'):
-    settings['job'] = os.environ.get('JCJOB_JOB')
+if os.environ.get('FJJ_JOB'):
+    settings['job'] = os.environ.get('FJJ_JOB')
 
 
 def job_params(prefix, parsed_args, **kwargs):
@@ -56,7 +56,7 @@ def job_params(prefix, parsed_args, **kwargs):
             f.write('{0}\n'.format(p))
     return params
 
-parser = argparse.ArgumentParser(description='jcjob')
+parser = argparse.ArgumentParser(description='Interface for fuel jenkins job')
 parser.add_argument('-j', '--job', help='Jenkins Job to be built')
 parser.add_argument(
     '-r', '--url', dest='jenkins_url', nargs='?', help='Jenkins URL')
