@@ -130,12 +130,17 @@ if build:
         diff = console[len(output):]
         print diff
         last_size = len(console)
-    if build.is_good():
-        artifacts_dir = os.path.join(output_dir, build_id)
-        if not os.path.exists(artifacts_dir):
-            os.makedirs(artifacts_dir)
-        for name, artifact in build.get_artifact_dict().items():
-            with open(os.path.join(artifacts_dir, name), 'w') as f:
-                f.write(artifact.get_data())
+    retries_num = 10
+    while retries_num:
+        time.sleep(10)
+        if build.is_good():
+            artifacts_dir = os.path.join(output_dir, build_id)
+            if not os.path.exists(artifacts_dir):
+                os.makedirs(artifacts_dir)
+            for name, artifact in build.get_artifact_dict().items():
+                with open(os.path.join(artifacts_dir, name), 'w') as f:
+                    f.write(artifact.get_data())
+            break
+        retries_num -= 1
     else:
         sys.exit(1)
